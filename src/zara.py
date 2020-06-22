@@ -41,7 +41,7 @@ class ZaraItem:
 
 
 if __name__ == "__main__":
-    url = 'https://www.zara.com/tr/tr/kisa-sweatshirt-p00264328.html'
+    url = input('URL: ')
     item = ZaraItem(url)
     data_file = os.path.dirname(os.path.abspath(
         __file__)) + os.path.sep + os.path.join('..', 'data', 'data.json')

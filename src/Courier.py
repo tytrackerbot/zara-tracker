@@ -5,7 +5,6 @@ import imghdr
 from email.message import EmailMessage
 import jsonpickle
 
-url = 'https://www.zara.com/tr/tr/kisa-sweatshirt-p00264328.html'
 mail_address = os.environ.get('MAIL_USERNAME')
 mail_password = os.environ.get('MAIL_PASSWORD')
 receiver_address = os.environ.get('RECEIVER_USERNAME')
@@ -19,13 +18,10 @@ msg['To'] = receiver_address
 # Obtain Item
 data_file = os.path.dirname(os.path.abspath(
     __file__)) + os.path.sep + os.path.join('..', 'data', 'data.json')
-try:
-    with open(data_file, 'r') as file:
-        content = file.read()
-        item = jsonpickle.decode(content)
-except:
-    item = ZaraItem(url)
-    item.saveToJSON(data_file)
+
+with open(data_file, 'r') as file:
+    content = file.read()
+    item = jsonpickle.decode(content)
 
 if item.isSmallSizeAvailable() and item.mail_count < 3:
     # Update Item
@@ -33,14 +29,12 @@ if item.isSmallSizeAvailable() and item.mail_count < 3:
     item.saveToJSON(data_file)
 
     # Generate Mail
-    html_msg = 'KISA SWEATSHIRT'
     msg.add_alternative(f'''\
         <!DOCTYPE html>
         <html>
             <body>
                 <h3>Zara Small Available</h3>
-                <p>{html_msg}</p>
-                <a href="https://www.zara.com/tr/tr/kisa-sweatshirt-p00264328.html">Visit Website</a> 
+                <a href="{item.url}">Visit Website</a> 
             </body>
         </html>
         ''', subtype='html')
