@@ -30,7 +30,7 @@ class ZaraItem:
     def isSmallSizeAvailable(self):
         soup = self.__getParsedHTML()
         size_list = soup.find(class_='size-list')
-        small_size_class_attr = ', '.join(size_list.contents[0].attrs['class'])
+        small_size_class_attr = ', '.join(size_list.contents[2].attrs['class'])
         return small_size_class_attr.find('disable') == -1
 
     def saveToJSON(self, filename):
