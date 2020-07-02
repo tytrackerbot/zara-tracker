@@ -5,13 +5,15 @@ import os
 
 
 class ZaraItem:
-    def __init__(self, url, count=0):
+    def __init__(self, url, sizes=[], mail_count=0):
         self.url = url
-        self.mail_count = count
+        self.mail_count = mail_count
+        self.sizes = sizes
 
     def __iter__(self):
         yield 'url', self.url
         yield 'mail_count', self.mail_count
+        yield 'sizes', self.sizes
 
     def __str__(self):
         return self.__repr__()
@@ -19,7 +21,7 @@ class ZaraItem:
     def __repr__(self):
         return (
             f'URL: {self.url}, Mail Count: {self.mail_count}, '
-            f'Small Size Available: {self.isSmallSizeAvailable()}'
+            f'Tracked Sizes: {self.sizes}'
         )
 
     def __getParsedHTML(self):
@@ -27,24 +29,36 @@ class ZaraItem:
         soup = BS(response.text, 'html.parser')
         return soup
 
-    def isSmallSizeAvailable(self):
+    def __isSizeAvailable(self, size):
         soup = self.__getParsedHTML()
         size_list = soup.find(class_='size-list')
-        small_size_class_attr = ', '.join(size_list.contents[0].attrs['class'])
+        if size == 'S':
+            small_size_class_attr = ', '.join(
+                size_list.contents[0].attrs['class'])
+        elif size == 'M':
+            small_size_class_attr = ', '.join(
+                size_list.contents[1].attrs['class'])
+        elif size == 'L':
+            small_size_class_attr = ', '.join(
+                size_list.contents[2].attrs['class'])
+        else:
+            return False
         return small_size_class_attr.find('disable') == -1
 
+    def isAnyTrackedSizeAvailable(self):
+        if any([self.__isSizeAvailable(size) for size in self.sizes]):
+            return True
+        else:
+            return False
+
+    def isSmallSizeAvailable(self):
+        return self.__isSizeAvailable(size='S')
+
     def isMediumSizeAvailable(self):
-        soup = self.__getParsedHTML()
-        size_list = soup.find(class_='size-list')
-        medium_size_class_attr = ', '.join(
-            size_list.contents[1].attrs['class'])
-        return medium_size_class_attr.find('disable') == -1
+        return self.__isSizeAvailable(size='M')
 
     def isLargeSizeAvailable(self):
-        soup = self.__getParsedHTML()
-        size_list = soup.find(class_='size-list')
-        large_size_class_attr = ', '.join(size_list.contents[2].attrs['class'])
-        return large_size_class_attr.find('disable') == -1
+        return self.__isSizeAvailable(size='L')
 
     def saveToJSON(self, filename):
         with open(filename, 'w') as file:
