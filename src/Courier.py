@@ -23,7 +23,7 @@ with open(data_file, 'r') as file:
     content = file.read()
     item = jsonpickle.decode(content)
 
-if item.mail_count < 3 and item.isSmallSizeAvailable():
+if item.mail_count < 3 and (item.isSmallSizeAvailable() or item.isMediumSizeAvailable()):
     # Update Item
     item.mail_count += 1
     item.saveToJSON(data_file)
